@@ -1,0 +1,39 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
+        int target = Arrays.stream(reader.readLine().split(" "))
+                                                    .mapToInt(Integer::parseInt)
+                                                    .toArray()[1];
+        
+        int[] plateNumSum = Arrays.stream(reader.readLine().split(" "))
+                                  .mapToInt(Integer::parseInt)
+                                  .toArray();
+
+        Set<Integer> prefixSum = new HashSet<>();
+        prefixSum.add(0);
+        
+        int currSum = 0;    
+        int count = 0;
+        for(int num: plateNumSum) {
+            currSum += num;
+            if(prefixSum.contains(currSum - target)) {
+                count += 1;
+            }
+            prefixSum.add(currSum);
+        }
+    
+        writer.write(String.valueOf(count));
+        reader.close();
+        writer.close();
+    }
+
+}

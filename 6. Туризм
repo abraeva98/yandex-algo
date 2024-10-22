@@ -1,0 +1,80 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
+
+public class Main {
+   private static Map<String, Object> parseInput(BufferedReader reader) throws IOException {
+       int numChain = Integer.parseInt(reader.readLine());
+       int[][] chains = new int[numChain][2];
+
+       for (int i = 0; i < numChain; i++) {
+            int[] coordinates = Arrays.stream(reader.readLine().split(" "))
+                    .mapToInt(Integer::parseInt)
+                    .toArray();
+            chains[i] = coordinates;
+       }
+
+       int trackNums = Integer.parseInt(reader.readLine());
+       int[][] tracks = new int[trackNums][2];
+       for(int j = 0; j < trackNums; j ++) {
+           int[] track = Arrays.stream(reader.readLine().split(" "))
+                           .mapToInt(Integer::parseInt)
+                           .toArray(); 
+           tracks[j] = track;
+       }    
+
+       Map<String, Object> parsedData = new HashMap<>();
+       parsedData.put("numChain", numChain);
+       parsedData.put("chains", chains);
+       parsedData.put("trackNums", trackNums);
+       parsedData.put("tracks", tracks);
+
+       return parsedData;
+   }
+    
+   public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        //BufferedReader reader = new BufferedReader(new FileReader("findTrack.txt"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        Map<String, Object> parsedData = Main.parseInput(reader);
+
+        int numChain = (int) parsedData.get("numChain");
+        int[][] chains = (int[][]) parsedData.get("chains");
+
+        int[] leftToRight = new int[numChain]; // [0, 0, 0, 0]
+        for (int idx = 0; idx < numChain - 1; idx++) {
+            if (chains[idx][1] < chains[idx + 1][1]) {
+                leftToRight[idx + 1] = chains[idx + 1][1] - chains[idx][1]; // [0, 3, 0, 0 ]
+            }
+        }
+
+        int[] rightToLeft = new int[numChain]; // [0, 0, 0, 0]
+        for(int idx = numChain - 1; idx > 0; idx --) {  // chains [1, 4, 3, 1], idx = 3
+            if(chains[idx][1] < chains[idx - 1][1]) { // rightToLeft = [0, 0, 2, 0], [0, 1, 2, 0]
+                rightToLeft[idx - 1] = chains[idx - 1][1] - chains[idx][1];
+            }
+        }
+
+        int[][] tracks = (int[][]) parsedData.get("tracks");
+        for (int[] track: tracks) {
+            int startIdx = track[0] - 1; // 2
+            int endIdx = track[1] - 1; // 1
+            int sum = 0;
+            if(startIdx < endIdx) {
+                sum = Arrays.stream(leftToRight, startIdx + 1, endIdx + 1).sum();
+            } else {
+                sum = Arrays.stream(rightToLeft, endIdx, startIdx).sum();
+            }
+
+            writer.write(String.valueOf(sum) + "\n");
+        }
+        reader.close();
+        writer.close();
+    }
+}

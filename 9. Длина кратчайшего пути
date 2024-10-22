@@ -1,0 +1,78 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
+import java.util.ArrayList;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
+        Map<Integer, ArrayList> connections = new HashMap<>();
+        int numNodes = Integer.parseInt(reader.readLine());
+       
+        for(int i = 1; i <= numNodes; i ++) {
+            int[] edges = Arrays.stream(reader.readLine().split(" "))
+                                .mapToInt(Integer::parseInt)
+                                .toArray();
+            connections.put(i, new ArrayList());
+            for(int j = 1; j <= edges.length; j ++) {
+                if(edges[j - 1] == 1) {
+                    connections.get(i).add(j);
+                }                
+            }
+        }
+        int[] nodes = Arrays.stream(reader.readLine().split(" "))
+                            .mapToInt(Integer::parseInt)
+                            .toArray();
+        int start = nodes[0];
+        int end = nodes[1];
+        int depth = 0;
+        Set<Integer> seen = new HashSet<>();
+        /* 5 -> 4
+          {1=[2], 2=[1, 4, 5, 7], 3=[5, 9], 4=[2, 7], 5=[2, 3, 10], 6=[7, 10], 7=[2, 4, 6], 8=[9], 9=[3, 8], 10=[5, 6]} 
+          
+        */
+        List<Integer> nextVals = new ArrayList<>();
+        nextVals.add(start);
+        boolean found = false;
+        while(nextVals.size() > 0) {
+            List<Integer> temp = new ArrayList<>(); // [2, 3, 10]
+            for(int val: nextVals) {
+                if(val == end) {
+                    writer.write(String.valueOf(depth));
+                    reader.close();
+                    writer.close();
+                    return;
+                }
+                if(!seen.contains(val)) {
+                    seen.add(val);
+                    List<Integer> connectedTo = connections.get(val);
+                    if(connectedTo != null) {
+                        for(int num: connectedTo) {
+                        if(!seen.contains(num)) {
+                            temp.add(num);
+                         //   seen.add(num);
+                        }
+                    }
+                    }
+                }
+            }
+            depth += 1;
+            nextVals = temp;
+        }
+        if(!found) {
+            writer.write("-1");
+        }
+        reader.close();
+        writer.close();
+    }
+
+}

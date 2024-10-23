@@ -1,0 +1,49 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
+        String[] input = reader.readLine().split(" ");
+        int windowSize = Integer.parseInt(input[1]);
+        int[] nums = Arrays.stream(reader.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+
+        Deque<Integer> deque = new ArrayDeque<>();
+        int[] output = new int[nums.length - windowSize + 1];
+
+        for(int i = 0; i < windowSize; i ++) {
+            while(!deque.isEmpty() && nums[i] <= nums[deque.peekLast()]) {
+                deque.pollLast();
+            }
+            deque.offerLast(i);
+        }
+        output[0] = nums[deque.peekFirst()];
+        for(int j = windowSize; j < nums.length; j ++) {
+            int removeIdx = j - windowSize;
+            int minValIdx = deque.peekFirst();
+
+            if(removeIdx == minValIdx) {
+                deque.pollFirst();
+            }
+
+            while(!deque.isEmpty() && nums[j] <= nums[deque.peekLast()]) {
+                deque.pollLast();
+            }
+            deque.offerLast(j);
+            output[removeIdx + 1] = nums[deque.peekFirst()];
+        }
+        
+        for(int res: output) {
+            writer.write(String.valueOf(res) + "\n");
+        }
+        reader.close();
+        writer.close();
+    }
+}

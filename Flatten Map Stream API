@@ -1,0 +1,17 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class StreamAPImap {
+    public static void main(String args[]) {
+        Map<Integer, List<Long>> input = new HashMap<>();
+        input.put(1, Arrays.asList(1L, 2L, 3L));
+        input.put(2, Arrays.asList(5L, 6L));
+
+        Map<Long, Integer> output = input.entrySet().stream().flatMap( entry -> {
+            Integer key = entry.getKey();
+            List<Long> values = entry.getValue();
+            return values.stream().map(num -> Map.entry(num, key));
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        System.out.println(output);
+    }
+}

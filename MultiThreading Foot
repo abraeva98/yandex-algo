@@ -1,0 +1,47 @@
+import java.lang.InterruptedException;
+
+public class Foot implements Runnable {
+    private final String name;
+    private static volatile int idx = 0;
+    private static final Object lock = new Object();
+
+    public Foot(String name) {
+        this.name = name;
+    }
+
+    public void run() {
+        for(int i = 0; i < 15; i ++) {
+            try {
+                step();
+            } catch(InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private void step() throws InterruptedException {
+            synchronized (lock) {
+                while(true) {
+                if((idx == 0 && name.equals("left")) || (idx == 1 && name.equals("right"))) {
+                    System.out.println("Step by " + name + " " + idx);
+                    idx = (idx + 1) % 2;
+                    lock.notify();
+                    return;
+                } else {
+                    lock.wait();
+                }
+            }
+        }
+    }
+}
+
+ class Robot {
+    public static void main(String[] args) throws InterruptedException {
+        Thread leftStep = new Thread(new Foot("left"));
+        Thread rightStep = new Thread(new Foot("right"));
+        leftStep.start();
+        rightStep.start();
+        leftStep.join();
+        rightStep.join();
+    }
+ }

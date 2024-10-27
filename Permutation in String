@@ -1,0 +1,42 @@
+class Solution {
+    public boolean checkInclusion(String s1, String s2) {
+        // s1 = "ab", s2 = "eidbaooo"
+        Map<Character, Integer> map = new HashMap<>();
+
+        for(int idx = 0; idx < s1.length(); idx ++) {
+            map.put(s1.charAt(idx), map.getOrDefault(s1.charAt(idx), 0) + 1);
+        }
+
+        Map<Character, Integer> window = new HashMap<>();        
+        for(int i = 0; i < s2.length(); i ++) {
+            if(i < s1.length()) {
+                window.put(s2.charAt(i), window.getOrDefault(s2.charAt(i), 0) + 1);
+            } else {
+                int idxToRemove = i - s1.length();
+                char charToRemove = s2.charAt(idxToRemove);
+                window.put(s2.charAt(i), window.getOrDefault(s2.charAt(i), 0) + 1);
+                if(window.get(charToRemove).equals(1)) {
+                    window.remove(charToRemove);
+                } else {
+                    window.put(charToRemove, window.get(charToRemove) - 1);
+                }
+            }
+            if(i >= s1.length() - 1) {
+                boolean matchFound = true;
+                for(Map.Entry<Character, Integer> entry: window.entrySet()) {
+                    Character key = entry.getKey();
+                    Integer val = entry.getValue();
+                    if(!map.containsKey(key) || !map.get(key).equals(val)){
+                        matchFound = false;
+                        break;
+                    }
+                }
+                if(matchFound) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}
